@@ -1,22 +1,23 @@
 # REVS-Chagas
 *REVS (REDCap ELISA Validation System) - for Chagas disease*
 
-[![es](https://img.shields.io/badge/lang-es-yellow.svg)](https://github.com/UBIOESGD/REVS-Chagas/blob/main/README.md)
-[![en](https://img.shields.io/badge/lang-en-blue.svg)](https://github.com/UBIOESGD/REVS-Chagas/blob/main/README.md)
+[![es](https://img.shields.io/badge/lang-es-green.svg)](https://github.com/UBIOESGD/REVS-Chagas/blob/main/README.md)
+[![en](https://img.shields.io/badge/lang-en-blue.svg)](https://github.com/UBIOESGD/REVS-Chagas/blob/main/README-en.md)
+[![ct](https://img.shields.io/badge/lang-ct-yellow.svg)](https://github.com/UBIOESGD/REVS-Chagas/blob/main/README-ct.md)
 
 
 REVS (Sistema de validación REDCap ELISA) es un completo conjunto de herramientas para la validación e integración de resultados de laboratorio ELISA e información de sujetos o pacientes, mediante REDCap.
 El presente proyecto contiene el código R que forma parte de REVS, para la validación y transferencia de placas ELISA de diagnóstico de la enfermedad de Chagas.
 El código es fácilmente extensible para utilizar tanto otras placas ELISA de Chagas como de otros tipos.
 
-## Partes de la herramienta
+## Conjunto de herramientas
 REVS-Chagas se compone de:
 
    - Proyecto REDCap *REVS-Chagas - Sujeto*, que gestiona datos de sujetos (pacientes) entre los que se incluye resultados de laboratorio de ELISA
    - Proyecto REDCap *REVS-Chagas - Placa ELISA*, que gestiona los resultados obtenidos en laboratorio tras la realización de los ensayos de placa ELISA (varias muestras de diferentes sujetos)
    - **validacion_ELISA.Rmd**: Informe de validación de los ensayos de laboratorio ELISA recogidos en *REVS-Chagas - Placa ELISA* y su relación y transferencia a *REVS-Chagas - Sujeto*
    - **ELISA_transfer.R**: Script de transferencia de datos, de los resultados recogidos en el proyecto *REVS-Chagas - Placa ELISA* de cada placa ELISA al proyecto *REVS-Chagas - Sujeto*
-   - **config.R**: Fichero de inicialización
+   - **config.R**: Fichero de configuración
 
 Tipos de ELISA considerados actualmente en REVS-Chagas:
 
@@ -57,7 +58,7 @@ Script de transferencia de resultados del proyecto *REVS-Chagas - Placa ELISA* a
 Las comprobaciones descritas anteriormente generan unos cuadros de diálogo en los que el usuario podrá decidir si se trata de errores menores que no influyen en la correcta importación de resultados, o bien se trata de errores críticos que deben ser solucionados antes de la transferencia de resultados.
 
 ### config.R
-Fichero de inicialización: contiene las variables que el proceso *ELISA_transfer.R* utilizará para importar y exportar datos. Las variables que se deben indicar son las siguientes:
+Fichero de configuración: contiene las variables que el proceso *ELISA_transfer.R* utilizará para importar y exportar datos. Las variables que se deben indicar son las siguientes:
 
 -  Variable *language*: idioma de en el que aparecerán los mensajes/avisos. Ej: 'es' (español) / 'en' (inglés) (1)
 -  Variable *api_url*: url del servidor REDCap
@@ -71,8 +72,8 @@ Los tokens se encuentra en la sección 'API' del menú izquierdo de cada proyect
 
 ## Puesta en marcha
 
-Para usar la herramienta REVS-Chagas, es esencial acceder a un servidor REDCap. REDCap, aunque está disponible gratuitamente para organizaciones sin fines de lucro, no es un software de código abierto. Para que una organización pueda instala y usar REDCap, es necesario unirse al consorcio. Las instrucciones para hacerlo se encuentran en el sitio web oficial de REDCap. El proceso suele implicar enviar una solicitud, proporcionar la información necesaria sobre el uso previsto de la plataforma y aceptar los términos de la licencia estándar. Si su organización ya utiliza REDCap, sólo es necesario contactar al administrador de REDCap de la institución para solicitar una nueva cuenta de usuario para iniciar sesión en el sistema.
+Para usar la herramienta REVS-Chagas, es esencial acceder a un servidor REDCap. REDCap, aunque está disponible gratuitamente para organizaciones sin fines de lucro, no es un software de código abierto. Para que una organización pueda instalar y usar REDCap, es necesario unirse al consorcio. Las instrucciones para hacerlo se encuentran en el sitio web oficial de REDCap. El proceso suele implicar enviar una solicitud, proporcionar la información necesaria sobre el uso previsto de la plataforma y aceptar los términos de la licencia estándar. Si su organización ya utiliza REDCap, sólo es necesario contactar al administrador de REDCap de la institución para solicitar una nueva cuenta de usuario para iniciar sesión en el sistema.
 
-Deben crearse dos nuevos proyectos REDCap, seleccionando la opción *Upload a REDCap project XML file (CDISC ODM format)*. Los archivos XML para crear ambos proyectos (*REVS-Chagas - Sujeto* y *REVS-Chagas - Placa ELISA*) se encuentran en la carpeta XML_files
+Deben crearse dos nuevos proyectos REDCap, seleccionando la opción *Upload a REDCap project XML file (CDISC ODM format)*. Los archivos XML para crear ambos proyectos (*REVS-Chagas - Sujeto* y *REVS-Chagas - Placa ELISA*) se encuentran en la carpeta XML_files.
 
-Configurar el fichero config.R con la información necesaria para conectar con su servidor mediante la API
+Configurar el fichero config.R con la información necesaria para conectar con su servidor mediante la API.
