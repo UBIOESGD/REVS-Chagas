@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ODM xmlns="http://www.cdisc.org/ns/odm/v1.3" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:redcap="https://projectredcap.org" xsi:schemaLocation="http://www.cdisc.org/ns/odm/v1.3 schema/odm/ODM1-3-1.xsd" ODMVersion="1.3.1" FileOID="000-00-0000" FileType="Snapshot" Description="REVS-Chagas - Sujeto" AsOfDateTime="2024-09-16T08:55:30" CreationDateTime="2024-09-16T08:55:30" SourceSystem="REDCap" SourceSystemVersion="14.6.3">
+<Study OID="Project.REVSChagasSujeto">
+<GlobalVariables>
+	<StudyName>REVS-Chagas - Sujeto</StudyName>
+	<StudyDescription>This file contains the metadata, events, and data for REDCap project "REVS-Chagas - Sujeto".</StudyDescription>
+	<ProtocolName>REVS-Chagas - Sujeto</ProtocolName>
+	<redcap:RecordAutonumberingEnabled>0</redcap:RecordAutonumberingEnabled>
+	<redcap:CustomRecordLabel></redcap:CustomRecordLabel>
+	<redcap:SecondaryUniqueField></redcap:SecondaryUniqueField>
+	<redcap:SecondaryUniqueFieldDisplayValue>1</redcap:SecondaryUniqueFieldDisplayValue>
+	<redcap:SecondaryUniqueFieldDisplayLabel>1</redcap:SecondaryUniqueFieldDisplayLabel>
+	<redcap:SchedulingEnabled>0</redcap:SchedulingEnabled>
+	<redcap:SurveysEnabled>0</redcap:SurveysEnabled>
+	<redcap:SurveyInvitationEmailField></redcap:SurveyInvitationEmailField>
+	<redcap:DisplayTodayNowButton>1</redcap:DisplayTodayNowButton>
+	<redcap:PreventBranchingEraseValues>0</redcap:PreventBranchingEraseValues>
+	<redcap:RequireChangeReason>0</redcap:RequireChangeReason>
+	<redcap:DataHistoryPopup>1</redcap:DataHistoryPopup>
+	<redcap:OrderRecordsByField></redcap:OrderRecordsByField>
+	<redcap:MyCapEnabled>0</redcap:MyCapEnabled>
+	<redcap:Purpose>3</redcap:Purpose>
+	<redcap:PurposeOther></redcap:PurposeOther>
+	<redcap:ProjectNotes></redcap:ProjectNotes>
+	<redcap:MissingDataCodes></redcap:MissingDataCodes>
+	<redcap:ProtectedEmailMode>0</redcap:ProtectedEmailMode>
+	<redcap:ProtectedEmailModeCustomText></redcap:ProtectedEmailModeCustomText>
+	<redcap:ProtectedEmailModeTrigger>ALL</redcap:ProtectedEmailModeTrigger>
+	<redcap:ProtectedEmailModeLogo></redcap:ProtectedEmailModeLogo>
+	<redcap:RepeatingInstrumentsAndEvents>
+		<redcap:RepeatingInstruments>
+			<redcap:RepeatingInstrument redcap:UniqueEventName="event_1_arm_1" redcap:RepeatInstrument="resultados_elisa" redcap:CustomLabel="[elisa_type], [elisa_result]"/>
+		</redcap:RepeatingInstruments>
+	</redcap:RepeatingInstrumentsAndEvents>
+	<redcap:ReportsGroup>
+		<redcap:Reports title="pacientes" unique_report_name="R-32884WCYHC" report_order="1" user_access="ALL" user_edit_access="ALL" description="" combine_checkbox_values="0" output_dags="0" output_survey_fields="0" output_missing_data_codes="0" remove_line_breaks_in_values="1" orderby_field1="patient_id" orderby_sort1="ASC" orderby_field2="" orderby_sort2="" orderby_field3="" orderby_sort3="" advanced_logic="" filter_type="RECORD" dynamic_filter1="" dynamic_filter2="" dynamic_filter3="" hash="YXFHP3DEMHA7F4JL" short_url="" is_public="0" report_display_include_repeating_fields="1" report_display_header="BOTH" report_display_data="BOTH" limiter_logic="" redcap_reports_fields="dob,sex" redcap_reports_filter_dags="" redcap_reports_filter_events="" ID="6e0312072ad7e48b470123802c90755c690b7644"/>
+	</redcap:ReportsGroup>
+	<redcap:RecordDashboardsGroup>
+		<redcap:RecordDashboards title="Recombinante 4" description="" filter_logic="[elisa_type] = &quot;wierec4&quot;" orientation="H" group_by="event" selected_forms_events="" arm="" sort_field_name="patient_id" sort_order="ASC"/>
+	</redcap:RecordDashboardsGroup>
+</GlobalVariables>
+<MetaDataVersion OID="Metadata.REVSChagasSujeto_2024-09-16_0855" Name="REVS-Chagas - Sujeto" redcap:RecordIdField="subject_id">
+	<FormDef OID="Form.formulario_sujeto" Name="Formulario sujeto" Repeating="No" redcap:FormName="formulario_sujeto">
+		<ItemGroupRef ItemGroupOID="formulario_sujeto.subject_id" Mandatory="No"/>
+		<ItemGroupRef ItemGroupOID="formulario_sujeto.formulario_sujeto_complete" Mandatory="No"/>
+	</FormDef>
+	<FormDef OID="Form.resultados_elisa" Name="Resultados Elisa" Repeating="No" redcap:FormName="resultados_elisa">
+		<ItemGroupRef ItemGroupOID="resultados_elisa.elisa_id" Mandatory="No"/>
+		<ItemGroupRef ItemGroupOID="resultados_elisa.resultados_elisa_complete" Mandatory="No"/>
+	</FormDef>
+	<ItemGroupDef OID="formulario_sujeto.subject_id" Name="Formulario sujeto" Repeating="No">
+		<ItemRef ItemOID="subject_id" Mandatory="No" redcap:Variable="subject_id"/>
+		<ItemRef ItemOID="dob" Mandatory="Yes" redcap:Variable="dob"/>
+		<ItemRef ItemOID="sex" Mandatory="No" redcap:Variable="sex"/>
+	</ItemGroupDef>
+	<ItemGroupDef OID="formulario_sujeto.formulario_sujeto_complete" Name="Form Status" Repeating="No">
+		<ItemRef ItemOID="formulario_sujeto_complete" Mandatory="No" redcap:Variable="formulario_sujeto_complete"/>
+	</ItemGroupDef>
+	<ItemGroupDef OID="resultados_elisa.elisa_id" Name="Resultados Elisa" Repeating="No">
+		<ItemRef ItemOID="elisa_id" Mandatory="No" redcap:Variable="elisa_id"/>
+		<ItemRef ItemOID="elisa_date" Mandatory="No" redcap:Variable="elisa_date"/>
+		<ItemRef ItemOID="elisa_type" Mandatory="No" redcap:Variable="elisa_type"/>
+		<ItemRef ItemOID="elisa_batch" Mandatory="No" redcap:Variable="elisa_batch"/>
+		<ItemRef ItemOID="elisa_operator" Mandatory="No" redcap:Variable="elisa_operator"/>
+		<ItemRef ItemOID="elisa_cutoff" Mandatory="No" redcap:Variable="elisa_cutoff"/>
+		<ItemRef ItemOID="elisa_od" Mandatory="No" redcap:Variable="elisa_od"/>
+		<ItemRef ItemOID="elisa_result" Mandatory="No" redcap:Variable="elisa_result"/>
+		<ItemRef ItemOID="elisa_observations" Mandatory="No" redcap:Variable="elisa_observations"/>
+	</ItemGroupDef>
+	<ItemGroupDef OID="resultados_elisa.resultados_elisa_complete" Name="Form Status" Repeating="No">
+		<ItemRef ItemOID="resultados_elisa_complete" Mandatory="No" redcap:Variable="resultados_elisa_complete"/>
+	</ItemGroupDef>
+	<ItemDef OID="subject_id" Name="subject_id" DataType="text" Length="999" redcap:Variable="subject_id" redcap:FieldType="text">
+		<Question><TranslatedText>Identificador del paciente</TranslatedText></Question>
+	</ItemDef>
+	<ItemDef OID="dob" Name="dob" DataType="date" Length="999" redcap:Variable="dob" redcap:FieldType="text" redcap:TextValidationType="date_dmy" redcap:RequiredField="y">
+		<Question><TranslatedText>Fecha nacimiento</TranslatedText></Question>
+	</ItemDef>
+	<ItemDef OID="sex" Name="sex" DataType="text" Length="1" redcap:Variable="sex" redcap:FieldType="radio">
+		<Question><TranslatedText>Sexo</TranslatedText></Question>
+		<CodeListRef CodeListOID="sex.choices"/>
+	</ItemDef>
+	<ItemDef OID="formulario_sujeto_complete" Name="formulario_sujeto_complete" DataType="text" Length="1" redcap:Variable="formulario_sujeto_complete" redcap:FieldType="select" redcap:SectionHeader="Form Status">
+		<Question><TranslatedText>Complete?</TranslatedText></Question>
+		<CodeListRef CodeListOID="formulario_sujeto_complete.choices"/>
+	</ItemDef>
+	<ItemDef OID="elisa_id" Name="elisa_id" DataType="text" Length="999" redcap:Variable="elisa_id" redcap:FieldType="text">
+		<Question><TranslatedText>	Identificador de la placa ELISA</TranslatedText></Question>
+	</ItemDef>
+	<ItemDef OID="elisa_date" Name="elisa_date" DataType="date" Length="999" redcap:Variable="elisa_date" redcap:FieldType="text" redcap:TextValidationType="date_dmy">
+		<Question><TranslatedText>Fecha del análisis</TranslatedText></Question>
+	</ItemDef>
+	<ItemDef OID="elisa_type" Name="elisa_type" DataType="text" Length="7" redcap:Variable="elisa_type" redcap:FieldType="radio">
+		<Question><TranslatedText>Tipo de ELISA</TranslatedText></Question>
+		<CodeListRef CodeListOID="elisa_type.choices"/>
+	</ItemDef>
+	<ItemDef OID="elisa_batch" Name="elisa_batch" DataType="integer" Length="999" redcap:Variable="elisa_batch" redcap:FieldType="text" redcap:TextValidationType="int">
+		<Question><TranslatedText>Número de lote ELISA</TranslatedText></Question>
+	</ItemDef>
+	<ItemDef OID="elisa_operator" Name="elisa_operator" DataType="text" Length="999" redcap:Variable="elisa_operator" redcap:FieldType="text">
+		<Question><TranslatedText>Nombre del operador/a</TranslatedText></Question>
+	</ItemDef>
+	<ItemDef OID="elisa_cutoff" Name="elisa_cutoff" DataType="float" Length="999" SignificantDigits="1" redcap:Variable="elisa_cutoff" redcap:FieldType="text" redcap:TextValidationType="float">
+		<Question><TranslatedText>Punto de corte</TranslatedText></Question>
+	</ItemDef>
+	<ItemDef OID="elisa_od" Name="elisa_od" DataType="float" Length="999" SignificantDigits="1" redcap:Variable="elisa_od" redcap:FieldType="text" redcap:TextValidationType="float">
+		<Question><TranslatedText>Densidad óptica</TranslatedText></Question>
+	</ItemDef>
+	<ItemDef OID="elisa_result" Name="elisa_result" DataType="text" Length="1" redcap:Variable="elisa_result" redcap:FieldType="radio">
+		<Question><TranslatedText>Resultado ELISA</TranslatedText></Question>
+		<CodeListRef CodeListOID="elisa_result.choices"/>
+	</ItemDef>
+	<ItemDef OID="elisa_observations" Name="elisa_observations" DataType="text" Length="999" redcap:Variable="elisa_observations" redcap:FieldType="textarea">
+		<Question><TranslatedText>Observaciones</TranslatedText></Question>
+	</ItemDef>
+	<ItemDef OID="resultados_elisa_complete" Name="resultados_elisa_complete" DataType="text" Length="1" redcap:Variable="resultados_elisa_complete" redcap:FieldType="select" redcap:SectionHeader="Form Status">
+		<Question><TranslatedText>Complete?</TranslatedText></Question>
+		<CodeListRef CodeListOID="resultados_elisa_complete.choices"/>
+	</ItemDef>
+	<CodeList OID="sex.choices" Name="sex" DataType="text" redcap:Variable="sex">
+		<CodeListItem CodedValue="1"><Decode><TranslatedText>Femenino</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="2"><Decode><TranslatedText>Masculino</TranslatedText></Decode></CodeListItem>
+	</CodeList>
+	<CodeList OID="formulario_sujeto_complete.choices" Name="formulario_sujeto_complete" DataType="text" redcap:Variable="formulario_sujeto_complete">
+		<CodeListItem CodedValue="0"><Decode><TranslatedText>Incomplete</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="1"><Decode><TranslatedText>Unverified</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="2"><Decode><TranslatedText>Complete</TranslatedText></Decode></CodeListItem>
+	</CodeList>
+	<CodeList OID="elisa_type.choices" Name="elisa_type" DataType="text" redcap:Variable="elisa_type">
+		<CodeListItem CodedValue="wierec3"><Decode><TranslatedText>Chagatest ELISA Recombinante v.3.0 (laboratorio Wiener)</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="wierec4"><Decode><TranslatedText>Chagatest  ELISA Recombinante v.4.0 (laboratorio Wiener)</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="wielis"><Decode><TranslatedText>Chagatest ELISA Lisado (laboratorio Wiener)</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="lemrec"><Decode><TranslatedText>Biozima Chagas Recombinante (laboratorio Lemos)</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="lemlis"><Decode><TranslatedText>Biozima Chagas Lisado (laboratorio Lemos)</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="iics1"><Decode><TranslatedText>ELISA Chagas test IICS v.1.0</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="iics2"><Decode><TranslatedText>ELISA Chagas test IICS v.2.0</TranslatedText></Decode></CodeListItem>
+	</CodeList>
+	<CodeList OID="elisa_result.choices" Name="elisa_result" DataType="text" redcap:Variable="elisa_result">
+		<CodeListItem CodedValue="1"><Decode><TranslatedText>Positivo</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="0"><Decode><TranslatedText>Negativo</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="9"><Decode><TranslatedText>Indeterminado</TranslatedText></Decode></CodeListItem>
+	</CodeList>
+	<CodeList OID="resultados_elisa_complete.choices" Name="resultados_elisa_complete" DataType="text" redcap:Variable="resultados_elisa_complete">
+		<CodeListItem CodedValue="0"><Decode><TranslatedText>Incomplete</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="1"><Decode><TranslatedText>Unverified</TranslatedText></Decode></CodeListItem>
+		<CodeListItem CodedValue="2"><Decode><TranslatedText>Complete</TranslatedText></Decode></CodeListItem>
+	</CodeList>
+</MetaDataVersion>
+</Study>
+</ODM>

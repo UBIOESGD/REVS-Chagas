@@ -1,0 +1,49 @@
+## Muestras no identificables (Número de estudio no identificable)
+<span style="color: firebrick;">Placas marcadas 'Completa'</span>
+
+```{r resultados_no_muestras}
+errors = res_elisas_completas$errors %>%
+  filter(
+      tolower(elisa_id) != "cn1" & tolower(elisa_id) != "cn2" & tolower(elisa_id) != "cn3" &
+      tolower(elisa_id) != "cn" &
+      tolower(elisa_id) != "control (-)" & tolower(elisa_id) != "control(-)" & 
+      tolower(elisa_id) != "control-" & tolower(elisa_id) != "control -" & 
+      tolower(elisa_id) != "contro -" & tolower(elisa_id) != "contorl -" & tolower(elisa_id) != "contril (-)" &
+      tolower(elisa_id) != "control n" & tolower(elisa_id) != "control negativo" &
+      tolower(elisa_id) != "control negativi" &
+      tolower(elisa_id) != "negativo"
+    &
+      tolower(elisa_id) != "cp1" & tolower(elisa_id) != "cp2" &
+      tolower(elisa_id) != "cp" &
+      tolower(elisa_id) != "cpd1" & tolower(elisa_id) != "cpd2" &
+      tolower(elisa_id) != "control (+)" & tolower(elisa_id) != "control +"  & tolower(elisa_id) != "contril (+)"
+    &
+      tolower(elisa_id) != "control p" &
+      tolower(elisa_id) != "control positivo" & tolower(elisa_id) != 'control positivi'&
+      tolower(elisa_id) != "positivo"
+    &
+      tolower(elisa_id) != "vacio" & 
+      tolower(elisa_id) != 'bk' & 
+      tolower(elisa_id) != "blanco"
+  ) 
+
+columns2hide<-c(1,3)
+
+errors%>%
+  datatable(
+    colnames = c(
+      "Id placa ELISA", #"Sitio", 
+      "Fecha", "Tipo ELISA",
+      "Validacion ELISA", #"Orden", 
+      "Cut Off RC", "Cut Off","Completa?",
+      "Num.Estudio", "DO", "Resultado", "Posicion en la placa"),
+    rownames = FALSE,
+    options = list(
+      columnDefs = list(list(className = 'dt-center', targets = "_all")
+                        ,list(visible=FALSE, targets=columns2hide)
+                        ),
+      pageLength = 10)
+ )%>%formatStyle("elisa_id", 'Color' = 'firebrick', fontWeight = "bold") 
+
+
+```

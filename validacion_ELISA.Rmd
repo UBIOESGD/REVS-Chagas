@@ -1,0 +1,605 @@
+---
+title: "REVS-Chagas"
+author: "UBIOESGD"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    number_sections: true
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+Sys.setlocale("LC_TIME", "Spanish")
+
+######## USING REDCAP, API CONNECTION #########
+#### 0.1 Packages and setting ####
+if (!require('dplyr')) install.packages('dplyr'); require('dplyr')
+if (!require('kableExtra')) install.packages('kableExtra'); require('kableExtra')
+if (!require('lubridate')) install.packages('lubridate'); require('lubridate')
+
+if (!require('redcapAPI')) install.packages('redcapAPI'); require('redcapAPI')
+
+if (!require('DT')) install.packages('DT'); require('DT')
+
+## Common Options for all datatable (tables DT)
+   table_class = 'row-border hover'
+                # row-border - border between rows
+                # hover - highlight when the cursor is over the row
+   table_extensions = 'FixedColumns'
+   table_Options = list(fixedColumns = list(leftColumns = 2), # Fixed first column (row number + first data column) (the FixedColumns extension is needed)
+                        columnDefs = list(list(className = 'dt-center', targets = "_all")), # Center aligr
+                        pageLength = 10, # show 15 register in one page #nrow(ds_res), # show all the register in one page
+                        scrollY = '600px',
+                        dom = 'frtip' #'ft' # f-filter, t-table, r-processing display element, B-buttons
+                        )
+   table_extensions_buttons = 'Buttons'
+   table_Options_buttons = list(columnDefs = list(list(className = 'dt-center', targets = "_all")), # Center aligr
+                                pageLength = 10, # show 15 register in one page #nrow(ds_res), # show all the register in one page
+                                scrollY = '600px',
+                                dom = 'Bfrtip',buttons = c('excel', 'pdf', 'csv'))
+
+#### 0.2 User-written functions ####
+source("config.R")
+source("isg_fun/read_data/rcApi-getData.R")
+source("isg_fun/checks_ELISAS_lab/elisa_dm.R")
+
+   
+#### 0.3 report variables ####
+#Script version
+rep_version<-"1.0"
+
+#REDCap version and project
+elisas_pid=407 # elisa
+sujetos_pid=354
+vrc="v14.2.2"
+   
+```
+
+```{r getData, include = FALSE}
+#### 1.0 getting data ####
+
+# data from the project with the laboratory results (ELISAs)
+# rcon = redcapConnection(api_url, token_elisas)
+# elisas1_data <- exportRecords(rcon, factors = T, checkboxLabels = T, labels=T)
+rc_revs_placaelisa <- readData(api_url, REDCap_token_lab) #exportRecordsTyped no usa factors
+
+# data from the project with the participants data, where to move the ELISA results
+rcon = redcapConnection(api_url, REDCap_token_reg)
+rc_revs_sujetopaciente = exportRecordsTyped(rcon, forms="resultados_elisa")
+
+```
+
+```{r elisaData, include = FALSE}
+#### 1.2 preparacion de los datos de las placas ELISA completas ####
+
+#elisa_type
+# wierec3	Chagatest ELISA Recombinante v.3.0 (laboratorio Wiener)
+# wierec4	Chagatest ELISA Recombinante v.4.0 (laboratorio Wiener)
+# wielis	Chagatest ELISA Lisado (laboratorio Wiener)
+# lemrec	Biozima Chagas Recombinante (laboratorio Lemos)
+# lemlis	Biozima Chagas Lisado (laboratorio Lemos)
+# iics1	  ELISA Chagas test IICS v.1.0
+# iics2	  ELISA Chagas test IICS v.2.0
+
+rc_revs_placaelisa <- rc_revs_placaelisa %>%
+  mutate_if(is.POSIXct, function(x) format(format( as.POSIXct(x), "%d-%m-%Y")))%>%
+  mutate(
+    #elisa_val = redcapFactorFlip(elisa_type),
+    elisa_val = case_when(
+       elisa_type == "Chagatest ELISA Recombinante v.3.0 (laboratorio Wiener)" ~ "wierec3" 
+      ,elisa_type == "Chagatest ELISA Recombinante v.4.0 (laboratorio Wiener)" ~ "wierec4"
+      ,elisa_type == "Chagatest ELISA Lisado (laboratorio Wiener)" ~ "wielis"
+      ,elisa_type == "Biozima Chagas Recombinante (laboratorio Lemos)" ~ "lemrec"
+      ,elisa_type == "Biozima Chagas Lisado (laboratorio Lemos)" ~ "lemlis"
+      ,elisa_type == "ELISA Chagas test IICS v.1.0" ~ "iics1" 
+      ,elisa_type == "ELISA Chagas test IICS v.2.0" ~ "iics2" 
+      ),
+    elisa_type_desc = case_when(
+       elisa_val == "wierec3" ~"Wiener Rec. 3.0"
+      ,elisa_val == "wierec4" ~ "Wiener Rec. 4.0"
+      ,elisa_val == "wielis" ~"Wiener Lis."
+      ,elisa_val == "lemrec" ~"Lemos Rec."
+      ,elisa_val == "lemlis" ~"Lemos Lis."
+      ,elisa_val == "iics1" ~"IICS 1"
+      ,elisa_val == "iics2" ~"IICS 2"
+      )
+  )
+
+rc_revs_sujetopaciente <- rc_revs_sujetopaciente%>%
+  mutate_if(is.POSIXct, function(x) format(format(as.POSIXct(x), "%d-%m-%Y")))
+
+```
+
+# REVS-Chagas - Placa ELISA (REDCap pid=`r elisas_pid`)
+<span style="color: firebrick;">[En rojo] </span>Elisas no completas en REDCap<br>
+<!-- <div style="background-color: tomato">Elisas que no pasan la validacion de placa del fabricante</div> -->
+
+```{r labdata}
+rc_revs_placaelisa %>%
+  select(elisa_id,  elisa_type_desc,  elisa_date, #orden_elisa,
+         #elisa_neg_ctrl_1, elisa_neg_ctrl_2, elisa_neg_ctrl_3, elisa_pos_ctrl_1, elisa_pos_ctrl_2,
+         elisa_observations, elisa_transfer,placa_elisa_complete) %>%
+  datatable(
+    colnames = c("Id placa",  "Tipo de ELISA",  "Fecha del análisis",#"Orden ELISA",
+            #"CN1", "CN2", "CN3", "CP1", "CP2",
+            "Comentarios", "Transferida?","Completa?"),
+    rownames = FALSE,
+    class = table_class, filter = 'top',
+    extensions = table_extensions,
+    options = list(
+                columnDefs = list(list(className = 'dt-center', targets = "_all")
+                                  #,list(visible = FALSE, targets = 5)
+                                  ),
+                dom = 'frtip')
+    ) %>%
+    formatStyle("elisa_id", target = 'row',  valueColumns = "placa_elisa_complete", color=styleEqual("Incomplete", 'firebrick')) #%>%
+  #formatStyle("elisa_id", target = 'row', valueColumns = "VALID", 'background' = styleEqual(FALSE, 'tomato'))
+```
+
+# Validación de las placas ELISA
+
+<span style="color: firebrick;">[En rojo] </span>Elisas no completas en REDCap<br>
+<div style="background-color: tomato">Valores no válidos según la validacion de placa del fabricante</div>
+<div style="background-color: lightgreen">Elisas válidas</div>
+
+<ul>
+<li><b>Wie recomb. 3.0</b> a) Al menos 2 de los 3 Controles Negativos deben ser menores o iguales a 0,150 D.O.<br>
+b) La DO promedio del Controle Positivo debe ser mayor o igual a 0,600 D.O.</li>
+
+<li><b>Wie recomb. 4.0</b> 1- El promedio de las absorbancias de los Controles Negativos deben ser menor o igual a 0,100.<br>
+2- Eliminar cualquier Control Negativo con D.O. mayor a 0,100. <i><span style="color: red;">TO DO!!</span></i></li>
+3- Volver a calcular el promedio. Un ensayo es válido si se aceptan al menos dos de los tres Controles Negativos.<br>
+4- El promedio de las absorbancias de los Controles Positivos debe ser mayor o igual a 1,300.<br>
+5- La diferencia entre el promedio de las D.O. de los Controles Positivos y Controles Negativos debe ser mayor o igual a 1,200.<br>
+<li><b>Wie lisado</b> 1- El promedio de las absorbancias de los Controles Negativos deben ser menor o igual a 0,100.<br>
+2- Eliminar cualquier Control Negativo con D.O. mayor a 0,100. <i><span style="color: red;">TO DO!!</span></i><br>
+3- Volver a calcular el promedio. Un ensayo es válido si se aceptan al menos dos de los tres Controles Negativos.<br>
+4- El promedio de las absorbancias de los Controles Positivos debe ser mayor o igual a 1,300.<br>
+5- La diferencia entre el promedio de las D.O. de los Controles Positivos y Controles Negativos debe ser mayor o igual a 1,200.<br>		
+</li>
+
+<li><b>Lemos recomb.</b> a) La DO promedio del Control Negativo es menor que 0.250.<br>
+b) La DO promedio del Control Positivo es mayor o igual  0.500
+</li>
+
+<li><b>Lemos lisado</b> a) La DO promedio del Control Negativo es menor que el Cut-off.<br>
+b) La DO promedio del Control Positivo es mayor o igual que el Cut-off.</li>
+
+<li><b>IICS v1</b> a) La DO promedio del Control Negativo es menor que 0.250.<br>
+b) 	La DO promedio del Control Positiv I es mayor o igual a 0.400.
+</li>
+
+<li><b>IICS v2</b> a)	La DO promedio del Control Negativo es menor que 0.150<br>
+b) 	La DO promedio del Control Positiv I es mayor o igual a 0.400.
+</li>
+
+</ul>
+
+```{r validacion_elisa}
+####################################
+#### 1 Validacion de resultados  ####
+####################################
+
+#### 1.0 Elisas que no pasan la validacion de placa del fabricante #### 
+#rc_revs_placaelisa$med_cn = rowMeans(rc_revs_placaelisa[,c("elisa_neg_ctrl_1","elisa_neg_ctrl_2","elisa_neg_ctrl_3")], na.rm=TRUE)
+  
+rc_revs_placaelisa <- rc_revs_placaelisa %>%
+  mutate(
+    m_cn = case_when(
+      elisa_val=="wierec3"~ mean_ctrl3(elisa_neg_ctrl_1, elisa_neg_ctrl_2, elisa_neg_ctrl_3) # limit: CN>0,150.
+      ,elisa_val=="wierec4"~ mean_ctrl3(elisa_neg_ctrl_1, elisa_neg_ctrl_2, elisa_neg_ctrl_3) # limit: eliminar  CN>0,100
+      ,elisa_val=="wielis"~ mean_ctrl3(elisa_neg_ctrl_1, elisa_neg_ctrl_2, elisa_neg_ctrl_3) # limit: eliminar  CN>0,100
+      ,elisa_val=="lemrec"~ mean_ctrl(elisa_neg_ctrl_1, elisa_neg_ctrl_2)
+      ,elisa_val=="lemlis"~ mean_ctrl(elisa_neg_ctrl_1, elisa_neg_ctrl_2)
+      ,elisa_val=="iics1"~ mean_ctrl(elisa_neg_ctrl_1, elisa_neg_ctrl_2)
+      ,elisa_val=="iics2"~ mean_ctrl(elisa_neg_ctrl_1, elisa_neg_ctrl_2)
+      ),
+    m_cp = case_when(
+      elisa_val=="wierec3"~  mean_ctrl(elisa_pos_ctrl_1, elisa_pos_ctrl_2)
+      ,elisa_val=="wierec4"~ mean_ctrl(elisa_pos_ctrl_1, elisa_pos_ctrl_2)
+      ,elisa_val=="wielis"~ mean_ctrl(elisa_pos_ctrl_1, elisa_pos_ctrl_2)
+      ,elisa_val=="lemrec"~elisa_pos_ctrl_1
+      ,elisa_val=="lemlis"~elisa_pos_ctrl_1
+      ,elisa_val=="iics1"~ mean_ctrl(elisa_pos_ctrl_1, elisa_pos_ctrl_2)
+      ,elisa_val=="iics2"~ mean_ctrl(elisa_pos_ctrl_1, elisa_pos_ctrl_2)
+      ),
+    cut_off_calc = case_when(
+      elisa_val=="wierec3"~(m_cn+0.300)
+      ,elisa_val=="wierec4"~(m_cn+0.200)
+      ,elisa_val=="wielis"~(m_cn+0.200)
+      ,elisa_val=="lemrec"~(m_cn+0.100)
+      ,elisa_val=="lemlis"~(m_cn+0.100)
+      ,elisa_val=="iics1"~(m_cn+0.200)
+      ,elisa_val=="iics2"~(m_cn+0.200)
+    ))
+#rc_revs_placaelisa %>% select(elisa_val,elisa_neg_ctrl_1,elisa_neg_ctrl_2,elisa_neg_ctrl_3,m_cn,elisa_pos_ctrl_1, elisa_pos_ctrl_2,m_cp)
+
+##VALID_cn = Ramedia_ctrlngos de al menos 2 de los 3 Controles Negativos (wiener)
+##VALID_dif = (wiener lisado) La diferencia entre el promedio de las D.O. de los Controles Positivos y Controles Negativos debe ser mayor o igual a 1,200.
+##VALID_c =  Rangos lectura media de los Controles (Positivo y/o negativo)
+elisas_validacion <- rc_revs_placaelisa %>%
+  mutate(
+    VALID_cn = !is.na(m_cn)&case_when(
+      elisa_val == "wierec3" ~ ((ifelse(elisa_neg_ctrl_1<=0.150,1,0) +
+                           ifelse(elisa_neg_ctrl_2<=0.150,1,0) +
+                           ifelse(elisa_neg_ctrl_3<=0.150,1,0)) >=2 & (m_cn<=0.150))
+      ,elisa_val == "wierec4" ~ ((ifelse(elisa_neg_ctrl_1<=0.100,1,0) +
+                        ifelse(elisa_neg_ctrl_2<=0.100,1,0) +
+                        ifelse(elisa_neg_ctrl_3<=0.100,1,0)) >=2 & (m_cn<=0.100))    
+      ,elisa_val == "wielis" ~ ((ifelse(elisa_neg_ctrl_1<=0.100,1,0) +
+                        ifelse(elisa_neg_ctrl_2<=0.100,1,0) +
+                        ifelse(elisa_neg_ctrl_3<=0.100,1,0))>=2 & (m_cn<=0.100))
+      ,elisa_val == "lemrec" ~ (m_cn<0.250)
+      ,elisa_val == "lemlis" ~ (m_cn<0.250)
+      ,elisa_val == "iics1" ~ (m_cn<0.250)
+      ,elisa_val == "iics2" ~ (m_cn<=0.150)
+      ),
+    VALID_cp = !is.na(m_cp)& case_when(
+      elisa_val == "wierec3" ~ (m_cp>=0.6)
+      ,elisa_val == "wierec4" ~ (m_cp>=1.3)
+      ,elisa_val == "wielis" ~ (m_cp>=1.3)
+      ,elisa_val == "lemrec" ~ (m_cp>=0.500)
+      ,elisa_val == "lemlis" ~ (m_cp>=elisa_cutoff)      
+      ,elisa_val == "iics1" ~ (m_cp>=0.400)
+      ,elisa_val == "iics2" ~ (m_cp>=0.400)
+      ),
+    
+    VALID_dif = case_when(
+      elisa_val == "wierec3" ~ TRUE
+      ,elisa_val == "wierec4" ~ (m_cp-m_cn>=1.200)
+      ,elisa_val == "wielis" ~ (m_cp-m_cn>=1.200)
+      ,elisa_val == "lemrec" ~ TRUE
+      ,elisa_val == "lemlis" ~ TRUE
+      ,elisa_val == "iics1" ~ TRUE
+      ,elisa_val == "iics2" ~ TRUE
+      ),
+    
+    VALIDS_co=!is.na(elisa_cutoff) & !is.na(cut_off_calc) & near(round(elisa_cutoff,3),cut_off_calc),
+
+    VALID = VALID_cn & VALID_dif & VALID_cp #&!is.na(VALID_cn) & !is.na(VALID_cp)
+    & VALIDS_co #& !is.na(elisa_cutoff) & !is.na(cut_off_calc)
+)%>% 
+  select(elisa_id, elisa_date,
+         elisa_type, elisa_type_desc, elisa_val, 
+         elisa_neg_ctrl_1, elisa_neg_ctrl_2, elisa_neg_ctrl_3, elisa_pos_ctrl_1, elisa_pos_ctrl_2, 
+         elisa_pos_ctrl_weak_1 ,elisa_pos_ctrl_weak_2, elisa_cutoff, cut_off_calc, m_cp, m_cn, 
+         elisa_observations, VALID_cn, VALID_dif, VALID_cp, VALID, VALIDS_co,
+         placa_elisa_complete#,sites, cns
+         )
+
+columns2hide<-c(2,12:15)
+
+elisas_validacion %>% 
+  #filter(!VALID) %>%
+  select(elisa_id, elisa_type_desc, elisa_val
+         ,elisa_neg_ctrl_1, elisa_neg_ctrl_2, elisa_neg_ctrl_3, elisa_pos_ctrl_1, elisa_pos_ctrl_2
+         ,elisa_cutoff,cut_off_calc,m_cn, m_cp
+         ,VALID_cn, VALID_cp, VALID_dif, VALIDS_co, VALID
+         ,placa_elisa_complete) %>%
+  datatable(
+    colnames = c("Id placa ELISA", "Tipo ELISA", "Valid. tipo ELISA"
+            ,"Ctrl Neg 1","Ctrl Neg 2","Ctrl Neg 3","Ctrl Pos 1","Ctrl Pos 2"
+            ,"Cut Off RC","Cut Off calc","Media CN","Media CP"
+            ,"Valid. CN","Valid. CP","Valid. CP-CN", "Comp cut off","Válida?"
+            ,"Completa?"),
+    rownames = FALSE, filter = 'top',
+    options = list(
+      columnDefs = list(list(className = 'dt-center', targets = "_all")
+                        ,list(visible=FALSE, targets=columns2hide)
+                        ),
+      pageLength = 10)
+  ) %>%
+  formatStyle("m_cn", 'background' = 'lightgrey') %>%
+  formatStyle("m_cp", 'background' = 'lightgrey') %>%
+  formatStyle("cut_off_calc", 'background' = 'lightgrey') %>%
+  formatStyle("elisa_id", target = 'row',  valueColumns = "placa_elisa_complete", color=styleEqual("Incomplete", 'firebrick')) %>%
+  formatStyle(c("elisa_id", "elisa_type_desc","VALID"), valueColumns = 'VALID', background = styleEqual(c(TRUE, FALSE), c('lightgreen', 'tomato'))) %>%
+  formatStyle(c("m_cn", "VALID_cn"), valueColumns = 'VALID_cn', background = styleEqual(FALSE, 'tomato')) %>%
+  formatStyle(c("m_cp", "VALID_cp"), valueColumns = 'VALID_cp', background = styleEqual(FALSE, 'tomato')) %>%
+  formatStyle(c("m_cn","m_cp", "VALID_dif"), valueColumns = 'VALID_dif', background = styleEqual(FALSE, 'tomato'))%>%
+  formatStyle(c("elisa_cutoff","cut_off_calc"), valueColumns = 'VALIDS_co', background = styleEqual(FALSE, 'tomato'))%>%
+  formatStyle(c(2,6,8,10,12), `border-right` = 'solid 1.5px')
+
+# VALID = VALID_cn & VALID_dif & VALID_cp & VALIDS_co 
+
+elisas_comp <- elisas_validacion %>%
+  filter(placa_elisa_complete == "Complete")
+```
+
+```{r resultados_y_errores}
+#### Resultados por studyno
+
+# Todas las elisas marcadas como completas
+## resultados_elisas ##
+# Analizar cada resultado individual introducido y validarlo
+# se devuelven dos listas de resultados: res (validos) y errors (no válidos)
+
+regexp_elisa_id_flag=FALSE
+#If TRUE, define the regular expression for regexp_elisa_id. Ejemplo CAS (Proyecto Casanillo) regexp_elisa_id="(cas-\\d{4})|(CAS-\\d{4})"
+
+res_elisas_completas <- resultados_elisas(
+  rc_revs_placaelisa %>%filter(placa_elisa_complete == "Complete")
+    ,dag_enabled=FALSE, orden_elisas=FALSE, regexp_elisa_id=""
+)
+
+res_elisas_completas_muestras = res_elisas_completas$res %>% filter (!is.na(well)&well=="Muestra")
+```
+
+# Resultados (muestras analizadas) en las placas ELISA
+
+<span style="color: firebrick;">Sólo se incluyen las placas marcadas 'Completa'</span>: `r nrow(res_elisas_completas_muestras)` muestras analizadas
+
+```{r resultados}
+
+table_data<- res_elisas_completas_muestras %>%  
+  group_by(elisa_id, elisa_date, elisa_type_desc, transferida, result) %>% 
+  tally()
+
+rowdelim <- table_data %>% group_by(elisa_id) %>% mutate(row = row_number(), total = n()) %>% ungroup()
+rowdelim <- which(rowdelim$row == rowdelim$total)
+table_data$rowdelimgroup <- rep(0, nrow(table_data))
+table_data$rowdelimgroup[rowdelim] <- 1
+
+columns2hide<-c(6)
+
+table_data %>%
+  datatable(
+    colnames = c("ELISA Id", "Fecha","Tipo ELISA", "Transferida?","Resultado","Num. muestras",""),
+    rownames = FALSE,  filter = 'top',
+    class = table_class, 
+    extensions = table_extensions, 
+    options = list(
+      columnDefs = list(list(className = 'dt-center', targets = "_all")
+                        ,list(visible=FALSE, targets=columns2hide)
+      ),
+      pageLength = 20, 
+      dom = 'frtip')
+  )%>% 
+  formatStyle(all(), valueColumns = "rowdelimgroup", 'border-bottom' = styleEqual(1, "solid 2px")) # adding thick borders
+```
+
+# Validación de resultados
+
+```{r, child=if (regexp_elisa_id_flag) 'elisa_id_child.Rmd'}
+```
+
+## Resultados no válidos de las muestras
+
+Cut Off: valor a partir del cual la muestra es considerada positiva
+<li><b>(1) Wiener rec. 3.0</b>: Cut-off = CN + 0,300. Indeterminación:+-10%</li>
+<li><b>(3) Lmos rec.</b>: Cut-off = CN + 0,100. Indeterminación:+-10%</li>
+<li><b>(4) IICS</b>: Cut-off = CN + 0,200. Indice(DO/Cut-off): Neg si indice<1,2 Ind si indice [1,1-1,3] Pos si indice>1,3 </li>
+
+```{r validacion_resultado}
+#### 1.2 Validacion resultados individuales
+#### Validacio indeterminacions: 1 wien recomb 3 & 4 lemos recomb
+# Zona de indeterminación: Cut-off ± 10%
+#### Validacio indeterminacions: IICS 2
+# Indice: DO de la muestra/cut off Zona de indeterminación: Indice 1.1-1.3
+
+res_validated <- res_elisas_completas$res %>% filter (!is.na(well)&well=="Muestra") %>% 
+  mutate(
+    co_ind_min = case_when(
+      elisa_val == "wierec3" ~ (cut_off_calc - cut_off_calc * 0.1),
+      elisa_val == "lemrec" ~ (cut_off_calc - cut_off_calc * 0.1)
+    ),
+    co_ind_max = case_when(
+      elisa_val == "wierec3" ~ (cut_off_calc + cut_off_calc * 0.1),
+      elisa_val == "lemrec" ~ (cut_off_calc + cut_off_calc * 0.1)
+    ),
+    indice = case_when(
+      elisa_val == "iics2" ~ (round(od/cut_off_calc,3))
+    ),
+    VALID_res =
+      ((elisa_val != "wierec3" & elisa_val != "lemrec") & ((od < cut_off_calc & result == "Negativo") | (od >= cut_off_calc & result == "Positivo"))|
+      
+      ((elisa_val == "wierec3" | elisa_val == "lemrec") & (od >= co_ind_min & od <= co_ind_max) & result == "Indeterminado") 
+      |(od < co_ind_min & result == "Negativo") | (od >= co_ind_max & result == "Positivo"))|
+      
+      (elisa_val == "iics2" & ((indice < 1.1 & result == "Negativo") | (indice >1.3 & result == "Positivo")|
+                                       (indice >= 1.1 &indice <=1.3 & result == "Indeterminado")))
+  )
+
+columns2hide<-c(1,3,7,8,15)
+
+res_validated %>%
+  filter(!VALID_res) %>%
+  datatable(
+    colnames = c("Id placa ELISA", #"Sitio", 
+                 "Fecha", 
+                 "Tipo ELISA", "Valid. tipo ELISA", 
+                 #"Orden", 
+                 "Cut Off RC","Cut Off", "Transferida", "Completa?",
+                 "Well",
+                 "ID. Muestra", "DO", "Resultado",
+                 "Posicion en la placa", 
+                 "Indet. min.", "Indet. max.", "Indice IICS",
+                 "Resultado Válido?"),
+    rownames = FALSE,
+    options = list(
+      columnDefs = list(list(className = 'dt-center', targets = "_all")
+                        ,list(visible=FALSE, targets=columns2hide)
+                        ),
+      pageLength = 10)
+  ) %>%
+  formatStyle("result", 'Color' = styleEqual('Indeterminado', 'firebrick'),
+              fontWeight = "bold") %>%
+  formatStyle(c("cut_off_calc", "od"), fontWeight = "bold")
+
+```
+
+# REVS-Chagas - Sujeto (REDCap pid=`r sujetos_pid`)
+Resultados traspasados a los sujetos (pacientes)
+
+```{r comparaciones_lab_proyecto}
+resultados_traspasados <- res_validated %>%
+  merge(
+    rc_revs_sujetopaciente %>%select(subject_id, elisa_id, elisa_type, elisa_od, elisa_result, resultados_elisa_complete),
+    by.x = c("sample_id","elisa_id","od"),
+    by.y = c("subject_id","elisa_id","elisa_od"),
+    all.x = TRUE, #
+    suffixes = c(".plate", ".subject")
+  ) %>%
+  mutate(trasp = !is.na(elisa_result))
+```
+
+## Resultados traspasados: `r nrow(resultados_traspasados %>% filter(trasp))`
+```{r resultados_proyecto}
+resultados_traspasados %>% 
+  filter(trasp) %>%
+  select(sample_id, elisa_id, od, #common
+         elisa_type_desc, cut_off_calc,co_ind_min,co_ind_max, posicion_placa, result, # placa
+         elisa_result #sujeto
+         ) %>%
+  datatable(
+    colnames = c("Id Paciente", "Id placa ELISA", "DO", 
+                 "Tipo ELISA", "Cut Off","Ind. min","Ind. max", "Posición en la placa","Resultado placa", 
+                 "Resultado sujeto"
+                 ),
+    rownames = FALSE,
+    class = table_class, 
+    extensions = table_extensions_buttons, 
+    options = list(
+                columnDefs = list(list(className = 'dt-center', targets = "_all")),
+                pageLength = 10, 
+                #scrollY = '400px', 
+                dom = 'Bfrtip',
+                buttons = c('excel', 'pdf', 'csv'))) %>%
+  formatStyle(c("od","result"), 'border-right' = 'solid 1.5px')
+
+res_tras_noval = resultados_traspasados %>% filter(trasp & !VALID_res)
+```
+
+### Resultados no válidos traspasados: `r nrow(res_tras_noval)`
+```{r resultados_proyecto_validacion}
+if (nrow(res_tras_noval)>0)
+res_tras_noval %>%
+  filter(trasp&!VALID_res) %>%
+  select(elisa_id, elisa_date, elisa_type_desc, #elisa_val,
+         elisa_cutoff, completa, sample_id, od, result,
+         posicion_placa, VALID_res) %>%
+  datatable(
+    colnames = c(
+      "Id placa ELISA", "Fecha", "Tipo ELISA", #"Validacion ELISA",
+      "Cut Off", "Completa?", "Num.Estudio", 
+      "DO", "Resultado", "Posicion en la placa", "Resultado Válido?"),
+    rownames = FALSE,
+    options = list(
+      columnDefs = list(list(className = 'dt-center', targets = "_all")),
+      pageLength = 10)
+    )
+
+res_tras_repetidos <- resultados_traspasados %>% filter(trasp) %>% group_by(sample_id, elisa_id, posicion_placa) %>% tally() %>% filter(n>1)
+
+```
+
+### Resultados traspasados más de una vez: `r nrow(res_tras_repetidos)`
+```{r resultados_proyecto_repetidos}
+if (nrow(res_tras_repetidos)>0)
+{
+  table_data = resultados_traspasados %>%
+    merge(res_tras_repetidos, by=c("sample_id","elisa_id","posicion_placa"),all.y =TRUE) %>% 
+    select(elisa_id, posicion_placa, sample_id,
+           elisa_date, elisa_type_desc, #elisa_val,
+         elisa_cutoff, completa,  od, result,
+          VALID_res)
+  
+  rowdelim <- table_data %>% group_by(elisa_id,posicion_placa) %>% mutate(row = row_number(), total = n()) %>% ungroup()
+  rowdelim <- which(rowdelim$row == rowdelim$total)
+  table_data$rowdelimgroup <- rep(0, nrow(table_data))
+  table_data$rowdelimgroup[rowdelim] <- 1
+  columns2hide<-c(ncol(table_data)-1)
+  
+  table_data %>%
+  datatable(
+    colnames = c(
+      "Id placa ELISA", "Posición en la placa", "Id. paciente",
+      "Fecha", "Tipo ELISA", #"Validacion ELISA",
+      "Cut Off", "Completa?", 
+      "DO", "Resultado",  "Resultado Válido?",""),
+    class = table_class, 
+    #extensions = table_extensions_buttons, 
+    rownames = FALSE,
+    options = list(
+      columnDefs = list(list(className = 'dt-center', targets = "_all")
+                        ,list(visible=FALSE, targets=columns2hide)
+                        ),
+      pageLength = 10 #scrollY = '400px'
+      )
+  )%>%
+    formatStyle(c("sample_id"), 'border-right' = 'solid 1.5px') %>%
+    formatStyle(all(), valueColumns = "rowdelimgroup", 'border-bottom' = styleEqual(1, "solid 2px")) # adding thick borders
+}
+```
+
+## Resultados por placa  traspasados al proyecto
+```{r resultados_proyecto_placa, echo = FALSE}
+tmp_rep = res_tras_repetidos %>% group_by(elisa_id) %>% summarise(repetidos_total = sum(n)) %>% merge(
+  res_tras_repetidos %>% group_by(elisa_id) %>% tally(),
+  by = "elisa_id"
+)%>% mutate (repetidos=repetidos_total-n)
+
+
+table_data = tmp_rep %>% merge (
+resultados_traspasados %>% filter(trasp)  %>%
+  group_by(elisa_id, elisa_type_desc) %>% 
+  summarise(num_resultados_traspasados = n(),.groups = "drop_last")
+  , by="elisa_id", all=TRUE)
+
+table_data %>% select(elisa_id,elisa_type_desc,num_resultados_traspasados,repetidos) %>%
+  datatable(
+    class = table_class, extensions = table_extensions_buttons, rownames = FALSE,
+    options = list(
+                columnDefs = list(list(className = 'dt-center', targets = "_all")),
+                pageLength = 10)
+  )
+```
+
+## Resultados no traspasados al proyecto:`r nrow(resultados_traspasados %>% filter(!trasp))`
+```{r resultados_proyecto_no, echo = FALSE}
+table_data=resultados_traspasados %>%
+  filter(!trasp) %>%
+  select(elisa_id,sample_id, elisa_type_desc, result, completa) %>%
+  arrange(elisa_id)
+rowdelim <- table_data %>% group_by(elisa_id) %>% mutate(row = row_number(), total = n()) %>% ungroup()
+rowdelim <- which(rowdelim$row == rowdelim$total)
+table_data$rowdelimgroup <- rep(0, nrow(table_data))
+table_data$rowdelimgroup[rowdelim] <- 1
+columns2hide<-c(ncol(table_data)-1)
+
+table_data %>%
+  datatable(
+    class = table_class, 
+    extensions = table_extensions_buttons, 
+    rownames = FALSE,
+    options = list(
+      columnDefs = list(list(className = 'dt-center', targets = "_all")
+                        ,list(visible=FALSE, targets=columns2hide)
+                        ),
+      pageLength = 10, #scrollY = '400px', 
+      dom = 'Bfrtip',
+      buttons = c('excel', 'pdf', 'csv'))
+  )%>%
+  #formatStyle(c("completa"), 'border-right' = 'solid 1.5px') %>%
+  formatStyle(all(), valueColumns = "rowdelimgroup", 'border-bottom' = styleEqual(1, "solid 2px")) # adding thick borders
+```
+
+## Resultados por placa no traspasados al proyecto
+```{r resultados_proyecto_no_placa}
+resultados_traspasados %>% 
+  filter(!trasp) %>% 
+  group_by(elisa_id, elisa_type_desc) %>% 
+  summarise(num_resultados_no_traspasados = n(),.groups = "drop_last") %>%
+  datatable(
+    class = table_class, extensions = table_extensions_buttons, rownames = FALSE
+  , options = list(
+                columnDefs = list(list(className = 'dt-center', targets = "_all")),
+                pageLength = 10, 
+                #scrollY = '400px', 
+                dom = 'Bfrtip',
+                buttons = c('excel', 'pdf', 'csv'))
+  )
+```
