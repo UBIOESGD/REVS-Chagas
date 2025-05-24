@@ -16,7 +16,7 @@ REVS-Chagas se compone de:
    - Proyecto REDCap *REVS-Chagas - Placa ELISA*, que gestiona los resultados obtenidos en laboratorio tras la realización de los ensayos de placa ELISA (varias muestras de diferentes sujetos)
    - **validacion_ELISA.Rmd**: Informe de validación de los ensayos de laboratorio ELISA recogidos en *REVS-Chagas - Placa ELISA* y su relación y transferencia a *REVS-Chagas - Sujeto*
    - **ELISA_transfer.R**: Script de transferencia de datos, de los resultados recogidos en el proyecto *REVS-Chagas - Placa ELISA* de cada placa ELISA al proyecto *REVS-Chagas - Sujeto*
-   - **Config.R**: Fichero de inicialización
+   - **config.R**: Fichero de inicialización
 
 Tipos de ELISA considerados actualmente en REVS-Chagas:
 
@@ -69,3 +69,10 @@ Los tokens se encuentra en la sección 'API' del menú izquierdo de cada proyect
 
 (1): el diccionario viene definido en los archivos presentes en la carpeta/sub-directorio *languages*. Si desea crear otro idioma, deberá copiar un diccionario ya creado, traducir los mensajes manualmente, e indicar en el archivo config.R el nuevo idioma deseado.
 
+## Puesta en marcha
+
+Para usar la herramienta REVS-Chagas, es esencial acceder a un servidor REDCap. REDCap, aunque está disponible gratuitamente para organizaciones sin fines de lucro, no es un software de código abierto. Para que una organización pueda instala y usar REDCap, es necesario unirse al consorcio. Las instrucciones para hacerlo se encuentran en el sitio web oficial de REDCap. El proceso suele implicar enviar una solicitud, proporcionar la información necesaria sobre el uso previsto de la plataforma y aceptar los términos de la licencia estándar. Si su organización ya utiliza REDCap, sólo es necesario contactar al administrador de REDCap de la institución para solicitar una nueva cuenta de usuario para iniciar sesión en el sistema.
+
+Deben crearse dos nuevos proyectos REDCap, seleccionando la opción *Upload a REDCap project XML file (CDISC ODM format)*. Los archivos XML para crear ambos proyectos (*REVS-Chagas - Sujeto* y *REVS-Chagas - Placa ELISA*) se encuentran en la carpeta XML_files
+
+Configurar el fichero config.R con la información necesaria para conectar con su servidor mediante la API
