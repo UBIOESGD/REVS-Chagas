@@ -9,6 +9,7 @@ REVS (Sistema de validación REDCap ELISA) es un completo conjunto de herramient
 El presente proyecto contiene el código R que forma parte de REVS, para la validación y transferencia de placas ELISA de diagnóstico de la enfermedad de Chagas.
 El código es fácilmente extensible para utilizar tanto otras placas ELISA de Chagas como de otros tipos.
 
+## Partes de la herramienta
 REVS-Chagas se compone de:
 
    - Proyecto REDCap *REVS-Chagas - Sujeto*, que gestiona datos de sujetos (pacientes) entre los que se incluye resultados de laboratorio de ELISA
@@ -27,7 +28,7 @@ Tipos de ELISA considerados actualmente en REVS-Chagas:
    6.	IICS - Chagas V1
    7.	IICS - Chagas V2
    
-## validacion_ELISA.Rmd
+### validacion_ELISA.Rmd
 Informe Markdown (salida en html) de control y validación de los datos recogidos en las placas ELISA: los resultados y los traspasos de datos realizados.
 Validacion de las placas y los resultados en el proyecto *REVS-Chagas - Placa ELISA* con los resultados de placa ELISA (muestras de pacientes)
 
@@ -45,7 +46,7 @@ Apartados incluidos en el informe:
       3. Resultados no traspasados al proyecto
       4. Resultados por placa no traspasados al proyecto
 
-## ELISA_transfer.R
+### ELISA_transfer.R
 Script de transferencia de resultados del proyecto *REVS-Chagas - Placa ELISA* al proyecto *REVS-Chagas - Sujeto*. El proceso consta de diferentes fases en las que se realizan tanto validaciones de la propia placa ELISA como de los resultados de la misma. Dichas validaciones son descritas a continuación:
 
    1. Comprobar errores de la propia placa, como pueden ser errores en el cálculo de cut-off, valores faltantes, o parámetros de control propios de cada tipo de ELISA
@@ -55,7 +56,7 @@ Script de transferencia de resultados del proyecto *REVS-Chagas - Placa ELISA* a
 
 Las comprobaciones descritas anteriormente generan unos cuadros de diálogo en los que el usuario podrá decidir si se trata de errores menores que no influyen en la correcta importación de resultados, o bien se trata de errores críticos que deben ser solucionados antes de la transferencia de resultados.
 
-## config.R
+### config.R
 Fichero de inicialización: contiene las variables que el proceso *ELISA_transfer.R* utilizará para importar y exportar datos. Las variables que se deben indicar son las siguientes:
 
 -  Variable *language*: idioma de en el que aparecerán los mensajes/avisos. Ej: 'es' (español) / 'en' (inglés) (1)
@@ -67,3 +68,4 @@ Fichero de inicialización: contiene las variables que el proceso *ELISA_transfe
 Los tokens se encuentra en la sección 'API' del menú izquierdo de cada proyecto REDCap. El usuario debe disponer de los permisos API, los cuales se podrán activar des de la sección "Derechos de Usuarios" o "User Rights".
 
 (1): el diccionario viene definido en los archivos presentes en la carpeta/sub-directorio *languages*. Si desea crear otro idioma, deberá copiar un diccionario ya creado, traducir los mensajes manualmente, e indicar en el archivo config.R el nuevo idioma deseado.
+
