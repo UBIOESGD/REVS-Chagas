@@ -28,15 +28,21 @@ ini_data <- read.ini(paste0('languages/', language, '.ini'))
 
 #### 1.0 Import Laboratory Data ####
 lab_data <- readData(api_url, REDCap_token_lab)
-lab_data <- lab_data[lab_data$placa_elisa_complete == "Complete", ]
-rownames(lab_data) <- 1:nrow(lab_data)
+lab_data <- lab_data[lab_data$placa_elisa_complete == "Complete", ] # Only show Complete REDCap forms
+# rownames(lab_data) <- 1:nrow(lab_data) # needed?
+# Add box to indicate whether ELISA has already been imported [X] or not [ ]:
+lab_data$elisa_id_transfered <- ifelse(lab_data$elisa_transfer == "No", 
+                                       paste0("[  ] ", lab_data$elisa_id),
+                                       paste0("[X] ", lab_data$elisa_id))
 
 #### 2.0 Import selected ELISA ####
 while (TRUE){
-  ELISA_to_import <- dlgList(choices = lab_data$elisa_id, title = ini_data$strings$string4)$res
-  i = which(lab_data$elisa_id == ELISA_to_import, arr.ind = TRUE)
-  ELISA_to_import <- lab_data$elisa_id
-  
+  # ELISA_to_import <- dlgList(choices = lab_data$elisa_id, title = ini_data$strings$string4)$res
+  ELISA_chosen_w_checkbox <- dlgList(choices = lab_data$elisa_id_transfered, title = ini_data$strings$string4)$res
+  ELISA_chosen <- lab_data$elisa_id[lab_data$elisa_id_transfered == ELISA_chosen_w_checkbox] # Fix name (not to include [] box)
+  i = which(lab_data$elisa_id == ELISA_chosen, arr.ind = TRUE)
+  ELISA_to_import <- lab_data$elisa_id # All ELISA to be imported
+
   # 0- Check if ELISA was imported previously
   if (is.na(lab_data$elisa_transfer[i])) lab_data$elisa_transfer[i] <- "No"
   if (as.character(lab_data$elisa_transfer[i]) == "Si"){
@@ -51,7 +57,8 @@ while (TRUE){
                             "elisa_type", "elisa_batch", "elisa_operator", "elisa_cutoff", "elisa_od", "elisa_result", "elisa_observations", "resultados_elisa_complete")}
   
   # 2- Select the ELISA plate
-  new_lab_data <- lab_data[lab_data$elisa_id == ELISA_to_import[i],]
+  new_lab_data <- lab_data[lab_data$elisa_id == ELISA_to_import[i],] 
+  new_lab_data$elisa_id_transfered <- NULL # Drop the column containing the [ ] boxes
   elisa_type <- as.character(new_lab_data$elisa_type)
   elisa_id <- as.character(new_lab_data$elisa_id)
   
@@ -129,17 +136,20 @@ while (TRUE){
   
   ### --> IMPORT RESULTS --> ###
   new_rep_data <- compl_data(df, rep_data)
-  new_rep_data$elisa_date <- as.Date(new_rep_data$elisa_date)
+  #new_rep_data$elisa_date <- as.Date(new_rep_data$elisa_date)
+
   new_rep_data$resultados_elisa_complete <- 2
   
+  new_rep_data <- castForImport(data = new_rep_data, rcon = redcapConnection(api_url, REDCap_token_reg))
   if (nrow(new_rep_data) > 0) importData(api_url, REDCap_token_reg, new_rep_data)
-  
+
   ### SHOW SUCCESSFUL IMPORT OF RESULTS
   answer <- winDialog("ok", paste(ini_data$strings$string5, nrow(new_rep_data), ini_data$strings$string6, elisa_id))
   
-  ### MARK PLATE AS IMPORTED
-  new_lab_data$elisa_transfer[1] <- factor('Si') 
-  importData(api_url, REDCap_token_lab, new_lab_data)
+  ### MARK PLATE AS IMPORTED (only upload elisa_transfer variable to avoid errors/warnings)
+  new_lab_data$elisa_transfer[1] <- factor('Si')
+  new_lab_data <- castForImport(data = new_lab_data[,c("elisa_id", "elisa_transfer")], rcon = redcapConnection(api_url, REDCap_token_lab))
+  importData(api_url, REDCap_token_lab, new_lab_data) 
   
   ### BLOCK ELISA
   if (lock_forms) lock_elisa(elisa_id, REDCap_token_lab, "placa_elisa", api_url, action = "lock")
