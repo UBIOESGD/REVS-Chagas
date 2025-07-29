@@ -1,4 +1,4 @@
-# Reestructurar les dades de LAB (ELISAS)
+# Reestructure laboratory data (ELISAs)
 
 transp_data <- function(new_lab_data){
   vars <- c("elisa_id", "elisa_date", "elisa_type", "elisa_observations", "elisa_batch", "elisa_cutoff", "elisa_calc_cutoff") # falta dag
