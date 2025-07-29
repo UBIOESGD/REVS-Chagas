@@ -10,14 +10,14 @@ wierec_v3 <- function(new_lab_data){
   message2 <- ""
   message3 <- ""
   
-  # CRITERI 0: Check if missing data
+  # CRITERIA 0: Check if missing data
   vars <- c("elisa_neg_ctrl_1", "elisa_neg_ctrl_2", "elisa_neg_ctrl_3", "elisa_pos_ctrl_1", "elisa_pos_ctrl_2", "elisa_cutoff")
   error0 <- sum(is.na(new_lab_data[, vars]))
   if(error0>0){
     message0 <- ini_data$strings$string8
     return(message0)}
   
-  # CRITERI 1: The O.D. readings of at least two of the three negative controls are ≤ 0.150
+  # CRITERIA 1: The O.D. readings of at least two of the three negative controls are ≤ 0.150
   error1 <- sum(ifelse(new_lab_data$elisa_neg_ctrl_1 <= 0.150, 1, 0), 
                 ifelse(new_lab_data$elisa_neg_ctrl_2 <= 0.150, 1, 0),
                 ifelse(new_lab_data$elisa_neg_ctrl_3 <= 0.150, 1, 0))
@@ -29,13 +29,13 @@ wierec_v3 <- function(new_lab_data){
   if (error1 >= 2){
     CN <- CN[which(CN <= 0.150)]}
   
-  # CRITERI 2: OD averahe of positive controls must be >=0.600.
+  # CRITERIA 2: OD averahe of positive controls must be >=0.600.
   CP <- c(new_lab_data$elisa_pos_ctrl_1, new_lab_data$elisa_pos_ctrl_2)
   error2 <- ifelse(mean(CP)>=0.6, 1, 0)
   if(error2==0){
     message2 <- ini_data$strings$string10}
   
-  # CRITERI 3: Cut-off = NC average + 0.300
+  # CRITERIA 3: Cut-off = NC average + 0.300
   cut_off <- round(mean(CN), 3) + 0.300
   if (round(cut_off, 3)  != round(new_lab_data$elisa_cutoff, 3)){
     message3 <- ini_data$strings$string11}
@@ -55,14 +55,14 @@ wierec_v4 <- function(new_lab_data){
   message3 <- ""
   message4 <- ""
   
-  # CRITERI 0: Check if missing data
+  # CRITERIA 0: Check if missing data
   vars <- c("elisa_neg_ctrl_1", "elisa_neg_ctrl_2", "elisa_neg_ctrl_3", "elisa_pos_ctrl_1", "elisa_pos_ctrl_2", "elisa_cutoff")
   error0 <- sum(is.na(new_lab_data[, vars]))
   if(error0>0){
     message0 <- ini_data$strings$string8
     return(message0)}
   
-  # CRITERI 1: The O.D. readings of at least two of the three negative controls are <=0.100.
+  # CRITERIA 1: The O.D. readings of at least two of the three negative controls are <=0.100.
   error1 <- sum(ifelse(new_lab_data$elisa_neg_ctrl_1 <= 0.100, 1, 0), 
                 ifelse(new_lab_data$elisa_neg_ctrl_2 <= 0.100, 1, 0),
                 ifelse(new_lab_data$elisa_neg_ctrl_3 <= 0.100, 1, 0))
@@ -74,16 +74,16 @@ wierec_v4 <- function(new_lab_data){
   if (error1 >= 2){
     CN <- CN[which(CN <= 0.100)]}
   
-  # CRITERI 2: OD average of positive controls must be >=1.300
+  # CRITERIA 2: OD average of positive controls must be >=1.300
   CP <- c(new_lab_data$elisa_pos_ctrl_1, new_lab_data$elisa_pos_ctrl_2)
   error2 <- ifelse(mean(CP) >= 1.300, 1, 0)
   if(error2==0) message2 <- ini_data$strings$string12
   
-  # CRITERI 3: Cut-off = NC average + 0.200
+  # CRITERIA 3: Cut-off = NC average + 0.200
   cut_off <- round(mean(CN), 3) + 0.200
   if (round(cut_off, 3)  != round(new_lab_data$elisa_cutoff, 3)) message3 <- ini_data$strings$string11
   
-  # CRITERI 4: Difference between PC average and NC must be >= 1.200
+  # CRITERIA 4: Difference between PC average and NC must be >= 1.200
   if (mean(CP) - mean(CN) < 1.200) message4 <- ini_data$strings$string11
   
   vec <- c(message0, message1, message2, message3, message4)
@@ -101,14 +101,14 @@ wielis <- function(new_lab_data){
   message3 <- ""
   message4 <- ""
   
-  # CRITERI 0: Check if missing data
+  # CRITERIA 0: Check if missing data
   vars <- c("elisa_neg_ctrl_1", "elisa_neg_ctrl_2", "elisa_neg_ctrl_3", "elisa_pos_ctrl_1", "elisa_pos_ctrl_2", "elisa_cutoff")
   error0 <- sum(is.na(new_lab_data[, vars]))
   if(error0>0){
     message0 <- ini_data$strings$string8
     return(message0)}
   
-  # CRITERI 1: The O.D. readings of at least two of the three negative controls are <=0.100.
+  # CRITERIA 1: The O.D. readings of at least two of the three negative controls are <=0.100.
   error1 <- sum(ifelse(new_lab_data$elisa_neg_ctrl_1 <= 0.100, 1, 0), 
                 ifelse(new_lab_data$elisa_neg_ctrl_2 <= 0.100, 1, 0),
                 ifelse(new_lab_data$elisa_neg_ctrl_3 <= 0.100, 1, 0))
@@ -120,16 +120,16 @@ wielis <- function(new_lab_data){
   if (error1 >= 2){
     CN <- CN[which(CN <= 0.100)]}
   
-  # CRITERI 2: OD average of positive controls must be >=1.300
+  # CRITERIA 2: OD average of positive controls must be >=1.300
   CP <- c(new_lab_data$elisa_pos_ctrl_1, new_lab_data$elisa_pos_ctrl_2)
   error2 <- ifelse(mean(CP)>=1.300, 1, 0)
   if(error2==0) message2 <- ini_data$strings$string12
   
-  # CRITERI 3: Cut-off = NC average + 0.200
+  # CRITERIA 3: Cut-off = NC average + 0.200
   cut_off <- round(mean(CN), 3)  + 0.200
   if (round(cut_off, 3) != round(new_lab_data$elisa_cutoff, 3)) message3 <- ini_data$strings$string11
   
-  # CRITERI 4: Difference between PC average and NC must be >= 1.200
+  # CRITERIA 4: Difference between PC average and NC must be >= 1.200
   if (mean(CP) - mean(CN) < 1.200) message4 <- ini_data$strings$string13
   
   vec <- c(message0, message1, message2, message3, message4)
@@ -146,24 +146,24 @@ biolis <- function(new_lab_data){
   message2 <- ""
   message3 <- ""
   
-  # CRITERI 0: Check if missing data
+  # CRITERIA 0: Check if missing data
   vars <- c("elisa_neg_ctrl_1", "elisa_neg_ctrl_2", "elisa_pos_ctrl_1", "elisa_cutoff")
   error0 <- sum(is.na(new_lab_data[, vars]))
   if(error0>0){
     message0 <- ini_data$strings$string8
     return(message0)}
   
-  # CRITERI 1: OD average of negative controls must be < 0.250
+  # CRITERIA 1: OD average of negative controls must be < 0.250
   CN <- c(new_lab_data$elisa_neg_ctrl_1, new_lab_data$elisa_neg_ctrl_2)
   error1 <- mean(CN) 
   if (error1 >= 0.250) message1 <- ini_data$strings$string14
   
-  # CRITERI 2: OD average of positive controls must be >= cutoff
+  # CRITERIA 2: OD average of positive controls must be >= cutoff
   CP <- c(new_lab_data$elisa_pos_ctrl_1)
   error2 <- ifelse(CP >= new_lab_data$elisa_cutoff, 1, 0)
   if(error2==0) message2 <- ini_data$strings$string15
   
-  # CRITERI 3: Cut-off = NC average + 0.100
+  # CRITERIA 3: Cut-off = NC average + 0.100
   cut_off <- round(mean(CN), 3) + 0.100
   if (round(cut_off, 3) != round(new_lab_data$elisa_cutoff, 3)) message3 <- ini_data$strings$string11
   
@@ -182,23 +182,23 @@ biorec <- function(new_lab_data){
   message3 <- ""
   message4 <- ""
   
-  # CRITERI 0: Check if missing data
+  # CRITERIA 0: Check if missing data
   vars <- c("elisa_neg_ctrl_1", "elisa_neg_ctrl_2", "elisa_pos_ctrl_1", "elisa_cutoff")
   error0 <- sum(is.na(new_lab_data[, vars]))
   if(error0>0){
     message0 <- ini_data$strings$string8
     return(message0)}
   
-  # CRITERI 1: Average of negative controls must be < 0.250
+  # CRITERIA 1: Average of negative controls must be < 0.250
   CN <- c(new_lab_data$elisa_neg_ctrl_1, new_lab_data$elisa_neg_ctrl_2)
   if (mean(CN) >= 0.250) message1 <- ini_data$strings$string16
   
-  # CRITERI 2: OD of positive controls must be >=0.500
+  # CRITERIA 2: OD of positive controls must be >=0.500
   CP <- new_lab_data$elisa_pos_ctrl_1
   error2 <- ifelse(CP >= 0.500, 1, 0)
   if(error2==0) message2 <- ini_data$strings$string12
   
-  # CRITERI 3: Cut-off = NC average + 0.100
+  # CRITERIA 3: Cut-off = NC average + 0.100
   cut_off <- round(mean(CN), 3) + 0.100
   if (round(cut_off, 3) != round(new_lab_data$elisa_cutoff, 3)) message3 <- ini_data$strings$string11
   
@@ -216,24 +216,24 @@ iics_v1 <- function(new_lab_data){
   message2 <- ""
   message3 <- ""
   
-  # CRITERI 0: Check if missing data
+  # CRITERIA 0: Check if missing data
   vars <- c("elisa_neg_ctrl_1", "elisa_neg_ctrl_2", "elisa_pos_ctrl_1", "elisa_pos_ctrl_2", "elisa_pos_ctrl_weak_1", "elisa_pos_ctrl_weak_2", "elisa_cutoff")
   error0 <- sum(is.na(new_lab_data[, vars]))
   if(error0 > 0){
     message0 <- ini_data$strings$string8
     return(message0)}
   
-  # CRITERI 1: Average negative controls must be < 0.250
+  # CRITERIA 1: Average negative controls must be < 0.250
   CN <- c(new_lab_data$elisa_neg_ctrl_1, new_lab_data$elisa_neg_ctrl_2)
   if (mean(CN) >= 0.250){
     message1 <- ini_data$strings$string16}
   
-  # CRITERI 2: Average weak positive controls must be >= 0.400
+  # CRITERIA 2: Average weak positive controls must be >= 0.400
   CP_weak <- c(new_lab_data$elisa_pos_ctrl_weak_1, new_lab_data$elisa_pos_ctrl_weak_2)
   if (mean(CP_weak) < 0.400){
     message2 <- ini_data$strings$string17}
   
-  # CRITERI 3: Cut-off = NC average + 0.200
+  # CRITERIA 3: Cut-off = NC average + 0.200
   cut_off <- round(mean(CN), 3) + 0.200
   if (round(cut_off, 3) != round(new_lab_data$elisa_cutoff, 3)){
     message3 <- ini_data$strings$string11}
@@ -252,22 +252,22 @@ iics_v2 <- function(new_lab_data){
   message2 <- ""
   message3 <- ""
   
-  # CRITERI 0: Check if missing data
+  # CRITERIA 0: Check if missing data
   vars <- c("elisa_neg_ctrl_1", "elisa_neg_ctrl_2", "elisa_pos_ctrl_1", "elisa_pos_ctrl_2", "elisa_pos_ctrl_weak_1", "elisa_pos_ctrl_weak_2", "elisa_cutoff")
   error0 <- sum(is.na(new_lab_data[, vars]))
   if(error0 > 0){
     message0 <- ini_data$strings$string8
     return(message0)}
   
-  # CRITERI 1: Average of negative controls must be <= 0.150
+  # CRITERIA 1: Average of negative controls must be <= 0.150
   CN <- c(new_lab_data$elisa_neg_ctrl_1, new_lab_data$elisa_neg_ctrl_2)
   if (mean(CN) > 0.150) message1 <- ini_data$strings$string18
   
-  # CRITERI 2: Average of weak positive controls must be >= 0.400
+  # CRITERIA 2: Average of weak positive controls must be >= 0.400
   CP_weak <- c(new_lab_data$elisa_pos_ctrl_weak_1, new_lab_data$elisa_pos_ctrl_weak_2)
   if (mean(CP_weak) < 0.400) message2 <- ini_data$strings$string17
   
-  # CRITERI 3: Cut-off = NC average + 0.200
+  # CRITERIA 3: Cut-off = NC average + 0.200
   cut_off <- round(mean(CN), 3) + 0.2
   if (round(cut_off, 3) != round(new_lab_data$elisa_cutoff, 3)) message3 <- ini_data$strings$string11
   
