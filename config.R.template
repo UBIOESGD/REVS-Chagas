@@ -1,10 +1,10 @@
 ####     REDCap API parameters     ####
 api_url <-  ''
 
-## REVS-Chagas - Placa ELISA
+## REVS-Chagas - Placa ELISA (ELISA plate)
 REDCap_token_lab <- ''
-## REVS-Chagas - Sujeto
-REDCap_token_reg <- ''
+## REVS-Chagas - Sujeto (Subject)
+REDCap_token_subj <- ''
 
 ####     REVS-Chagas parameters     ####
 language <- 'spanish'
