@@ -86,6 +86,6 @@ In the 'Laboratory REDCap project', an additional plugin called Locking API can 
 ### Scripts setup
 Once the two REDCap projects have been set up, the next step is to request the necessary tokens for API usage. These can be requested from the "API" section under the "Applications" menu. If the "API" section is not visible, please contact your REDCap administrator to request this permission.
 
-Configure the `config.R` file with the information needed to connect to your REDCap server via the API.
+Configure the `config.R` file. The parameters include the API token, language preference, and whether you want to use the form blocking option with the plugin. 
 
 
