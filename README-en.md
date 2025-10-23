@@ -72,12 +72,20 @@ Tokens are found in the 'API' section on the left-hand menu of each REDCap proje
 
 ## Getting started
 
+### REDCap
 To use the REVS-Chagas tool, access to a REDCap server is required.  
 REDCap is available free of charge for non-profit organizations but is not open-source software.  
 To install and use REDCap, an organization must join the REDCap consortium. Instructions are available on the official REDCap website. The process typically involves submitting an application, providing details about the intended use, and accepting the standard license terms.  
 If your organization already uses REDCap, contact your REDCap administrator to request a new user account to access the system.
 
-Two new REDCap projects must be created using the option *Upload a REDCap project XML file (CDISC ODM format)*.  
-The XML files needed to create the two projects (*REVS-Chagas - Subject* and *REVS-Chagas - ELISA Plate*) are available in the `XML_files` folder.
+The XML files needed to create the two REDCap projects (*REVS-Chagas - Subject* and *REVS-Chagas - ELISA Plate*) are available in the `XML_files` folder. To create each project, one must navigate to the "New project" section on the top navbar of REDCap and fill in the necessary metadata. Then, in the "Project creation option" section, select "Upload a REDCap project XML file (CDISC ODM format)" and upload the corresponding file located in the “XML_files” folder of the repository.
+These steps should be followed separately for both the ‘Subjects’ REDCap project’ and the ‘Laboratory REDCap project’, leading to having two projects in REDCap.
+
+In the 'Laboratory REDCap project', an additional plugin called Locking API can be installed. This will allow locking laboratory results from de R API once they have been transferred to ensure their security. To do this, go to the "External Modules" menu and install the 'Locking API' plugin. If the "External Modules" menu is not visible, please contact your REDCap administrator to request this permission. Alternatively, this functionality can be disabled in config.R.
+
+### Scripts setup
+Once the two REDCap projects have been set up, the next step is to request the necessary tokens for API usage. These can be requested from the "API" section under the "Applications" menu. If the "API" section is not visible, please contact your REDCap administrator to request this permission.
 
 Configure the `config.R` file with the information needed to connect to your REDCap server via the API.
+
+
