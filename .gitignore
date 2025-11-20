@@ -48,5 +48,8 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
-*.html
+# User output html files
+/*.html
+
+# User configuration file
 config.R
